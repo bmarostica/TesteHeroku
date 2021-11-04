@@ -29,4 +29,15 @@ public class DadosPessoaisController {
     public DadosPessoaisDTO create(@RequestBody DadosPessoaisDTO dadosPessoaisDTO){
         return dadosPessoaisService.create(dadosPessoaisDTO);
     }
+
+    @PutMapping("/{cpf}")
+    public DadosPessoaisDTO update(@RequestParam("cpf") String cpf, @RequestBody DadosPessoaisDTO dadosPessoaisDTO){
+        return dadosPessoaisService.update(cpf, dadosPessoaisDTO);
+    }
+
+    @DeleteMapping("/{cpf}")
+    public void delete(@RequestParam("cpf") String cpf){
+        dadosPessoaisService.delete(cpf);
+    }
+
 }
