@@ -27,4 +27,6 @@ public class PessoaCreateDTO{
     @NotNull
     @ApiModelProperty(value = "E-mail")
     private String email;
+
+    private DadosPessoaisDTO dadosPessoaisDTO;
 }

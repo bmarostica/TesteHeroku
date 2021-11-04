@@ -2,6 +2,7 @@ package com.dbc.pessoaapi.controller;
 
 import com.dbc.pessoaapi.dto.PessoaCreateDTO;
 import com.dbc.pessoaapi.dto.PessoaDTO;
+import com.dbc.pessoaapi.exceptions.RegraDeNegocioException;
 import com.dbc.pessoaapi.service.PessoaService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -83,7 +84,7 @@ public class PessoaController {
     }
 
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Pessoa Deletada com sucesso com sucesso"),
+            @ApiResponse(code = 200, message = "Pessoa Deletada com sucesso"),
             @ApiResponse(code = 400, message = "Erro, ID informado inválido"),
             @ApiResponse(code = 500, message = "Exceção gerada.")
     })
@@ -93,5 +94,21 @@ public class PessoaController {
         log.info("Deletando pessoa...");
         pessoaService.delete(id);
         log.info("Pessoa deletada com sucesso!");
+    }
+
+
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Pessoa localizada com sucesso"),
+            @ApiResponse(code = 400, message = "Erro, ID informado inválido"),
+            @ApiResponse(code = 500, message = "Exceção gerada.")
+    })
+    @ApiOperation("Busca pessoa pelo ID informado")
+    @GetMapping("/{id}")
+    public PessoaDTO buscarPorId(Integer id) throws RegraDeNegocioException {
+        log.info("Buscando pessoa...");
+        PessoaDTO pessoaDTO = pessoaService.buscarPorId(id);
+        log.info("Busca realizada com sucesso! ");
+
+        return pessoaDTO;
     }
 }

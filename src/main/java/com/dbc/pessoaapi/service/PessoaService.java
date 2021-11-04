@@ -1,8 +1,11 @@
 package com.dbc.pessoaapi.service;
 
+import com.dbc.pessoaapi.client.DadosPessoaisClient;
+import com.dbc.pessoaapi.dto.DadosPessoaisDTO;
 import com.dbc.pessoaapi.dto.PessoaCreateDTO;
 import com.dbc.pessoaapi.dto.PessoaDTO;
 import com.dbc.pessoaapi.entity.PessoaEntity;
+import com.dbc.pessoaapi.exceptions.RegraDeNegocioException;
 import com.dbc.pessoaapi.repository.PessoaRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,7 @@ public class PessoaService {
     private final PessoaRepository pessoaRepository;
     private final ObjectMapper objectMapper;
     private final EmailService emailService;
+    private final DadosPessoaisClient dadosPessoaisClient;
 
     public PessoaDTO create(PessoaCreateDTO pessoaCreateDTO) throws Exception {
         PessoaEntity pessoaEntity = objectMapper.convertValue(pessoaCreateDTO, PessoaEntity.class);
@@ -62,5 +66,17 @@ public class PessoaService {
         return pessoaRepository.listByName(nome).stream()
                 .map(pessoa -> objectMapper.convertValue(pessoa, PessoaDTO.class))
                 .collect(Collectors.toList());
+    }
+
+
+    public PessoaDTO buscarPorId(Integer id) throws RegraDeNegocioException {
+        PessoaEntity pessoaEntity = pessoaRepository.buscarPorId(id);
+
+        DadosPessoaisDTO dadosPessoaisDTO = dadosPessoaisClient.getPorCpf(pessoaEntity.getCpf());
+        PessoaDTO pessoaDTO = objectMapper.convertValue(pessoaEntity, PessoaDTO.class);
+
+        pessoaDTO.setDadosPessoaisDTO(dadosPessoaisDTO);
+
+        return pessoaDTO;
     }
 }
