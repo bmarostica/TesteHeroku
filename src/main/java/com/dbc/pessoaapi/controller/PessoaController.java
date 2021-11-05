@@ -13,7 +13,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Validated
@@ -62,8 +61,8 @@ public class PessoaController {
             @ApiResponse(code = 500, message = "Exceção gerada.")
     })
     @ApiOperation(value = "Retorna uma lista de pessoas pelo nome procurado")
-    @GetMapping("/{nome}")
-    public List<PessoaDTO> listByName(@PathVariable("nome") String nome) {
+    @GetMapping("/byname")
+    public List<PessoaDTO> listByName(@RequestParam("nome") String nome) {
         return pessoaService.listByName(nome);
     }
 
@@ -90,7 +89,7 @@ public class PessoaController {
     })
     @ApiOperation(value = "Deleta uma pessoa pelo ID informado")
     @DeleteMapping("/{idPessoa}")
-    public void delete(@PathVariable("idPessoa") @NotNull Integer id) throws Exception {
+    public void delete(@PathVariable("idPessoa") Integer id) throws Exception {
         log.info("Deletando pessoa...");
         pessoaService.delete(id);
         log.info("Pessoa deletada com sucesso!");
@@ -104,7 +103,7 @@ public class PessoaController {
     })
     @ApiOperation("Busca pessoa pelo ID informado")
     @GetMapping("/{id}")
-    public PessoaDTO buscarPorId(Integer id) throws RegraDeNegocioException {
+    public PessoaDTO buscarPorId(@PathVariable("id") Integer id) throws RegraDeNegocioException {
         log.info("Buscando pessoa...");
         PessoaDTO pessoaDTO = pessoaService.buscarPorId(id);
         log.info("Busca realizada com sucesso! ");

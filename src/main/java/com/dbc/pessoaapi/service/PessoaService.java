@@ -26,7 +26,9 @@ public class PessoaService {
     public PessoaDTO create(PessoaCreateDTO pessoaCreateDTO) throws Exception {
         PessoaEntity pessoaEntity = objectMapper.convertValue(pessoaCreateDTO, PessoaEntity.class);
         PessoaEntity pessoaCriada = pessoaRepository.create(pessoaEntity);
+
         PessoaDTO pessoaDTO = objectMapper.convertValue(pessoaCriada, PessoaDTO.class);
+        dadosPessoaisClient.create(pessoaDTO.getDadosPessoaisDTO());
 
         //emailService.envioComTemplateAoCriar(pessoaDTO);
 
@@ -42,9 +44,13 @@ public class PessoaService {
     public PessoaDTO update(Integer id,
                             PessoaCreateDTO pessoaCreateDTO) throws Exception {
         PessoaEntity entity = objectMapper.convertValue(pessoaCreateDTO, PessoaEntity.class);
+        DadosPessoaisDTO dadosPessoaisAtualizado = dadosPessoaisClient.update(entity.getCpf(), entity.getDadosPessoaisDTO());
+
         PessoaEntity atualizado = pessoaRepository.update(id, entity);
 
         PessoaDTO pessoaDTO = objectMapper.convertValue(atualizado, PessoaDTO.class);
+
+        pessoaDTO.setDadosPessoaisDTO(dadosPessoaisAtualizado);
 
         //emailService.envioComTemplateAoAtualizar(pessoaDTO);
 
@@ -54,11 +60,10 @@ public class PessoaService {
     public void delete(Integer id) throws Exception {
         PessoaEntity pessoaEntity = pessoaRepository.buscarPorId(id);
 
-        PessoaEntity entity = objectMapper.convertValue(pessoaEntity, PessoaEntity.class);
-        PessoaDTO pessoaDTO = objectMapper.convertValue(entity, PessoaDTO.class);
-
+        dadosPessoaisClient.delete(pessoaEntity.getCpf());
         pessoaRepository.delete(id);
 
+        //PessoaDTO pessoaDTO = objectMapper.convertValue(pessoaEntity, PessoaDTO.class)
         //emailService.envioComTemplateAoDeletar(pessoaDTO);
     }
 
