@@ -44,7 +44,6 @@ public class PessoaRepository {
         pessoaRecuperada.setNome(pessoaAtualizar.getNome());
         pessoaRecuperada.setDataNascimento(pessoaAtualizar.getDataNascimento());
         pessoaRecuperada.setEmail(pessoaAtualizar.getEmail());
-        pessoaRecuperada.setDadosPessoaisDTO(pessoaAtualizar.getDadosPessoaisDTO());
         return pessoaRecuperada;
     }
 

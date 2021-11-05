@@ -9,6 +9,7 @@ import com.dbc.pessoaapi.exceptions.RegraDeNegocioException;
 import com.dbc.pessoaapi.repository.PessoaRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,12 +25,12 @@ public class PessoaService {
     private final DadosPessoaisClient dadosPessoaisClient;
 
     public PessoaDTO create(PessoaCreateDTO pessoaCreateDTO) throws Exception {
+        dadosPessoaisClient.create(pessoaCreateDTO.getDadosPessoaisDTO());
         PessoaEntity pessoaEntity = objectMapper.convertValue(pessoaCreateDTO, PessoaEntity.class);
         PessoaEntity pessoaCriada = pessoaRepository.create(pessoaEntity);
 
         PessoaDTO pessoaDTO = objectMapper.convertValue(pessoaCriada, PessoaDTO.class);
-
-        dadosPessoaisClient.create(pessoaDTO.getDadosPessoaisDTO());
+        pessoaDTO.setDadosPessoaisDTO(dadosPessoaisClient.getPorCpf(pessoaDTO.getCpf()));
 
         //emailService.envioComTemplateAoCriar(pessoaDTO);
 
@@ -38,16 +39,22 @@ public class PessoaService {
 
     public List<PessoaDTO> list() {
         return pessoaRepository.list().stream()
-                .map(pessoa -> objectMapper.convertValue(pessoa, PessoaDTO.class))
+                .map(pessoa -> {
+                    PessoaDTO pessoaDTO = objectMapper.convertValue(pessoa, PessoaDTO.class);
+                    pessoaDTO.setDadosPessoaisDTO(dadosPessoaisClient.getPorCpf(pessoa.getCpf()));
+                    return pessoaDTO;
+                })
                 .collect(Collectors.toList());
     }
 
     public PessoaDTO update(Integer id,
                             PessoaCreateDTO pessoaCreateDTO) throws Exception {
+        dadosPessoaisClient.update(pessoaCreateDTO.getCpf(), pessoaCreateDTO.getDadosPessoaisDTO());
         PessoaEntity entity = objectMapper.convertValue(pessoaCreateDTO, PessoaEntity.class);
-        PessoaEntity atualizado = pessoaRepository.update(id, entity);
+        PessoaEntity pessoaEntity = pessoaRepository.update(id, entity);
 
-        PessoaDTO pessoaDTO = objectMapper.convertValue(atualizado, PessoaDTO.class);
+        PessoaDTO pessoaDTO = objectMapper.convertValue(pessoaEntity, PessoaDTO.class);
+        pessoaDTO.setDadosPessoaisDTO(dadosPessoaisClient.getPorCpf(pessoaEntity.getCpf()));
 
         //emailService.envioComTemplateAoAtualizar(pessoaDTO);
 
@@ -65,14 +72,21 @@ public class PessoaService {
 
     public List<PessoaDTO> listByName(String nome) {
         return pessoaRepository.listByName(nome).stream()
-                .map(pessoa -> objectMapper.convertValue(pessoa, PessoaDTO.class))
+                .filter(pessoa -> StringUtils.containsIgnoreCase(pessoa.getNome(), nome))
+                .map(pessoa -> {
+                    PessoaDTO pessoaDTO = objectMapper.convertValue(pessoa, PessoaDTO.class);
+                    pessoaDTO.setDadosPessoaisDTO(dadosPessoaisClient.getPorCpf(pessoa.getCpf()));
+                    return pessoaDTO;
+                })
                 .collect(Collectors.toList());
     }
 
 
     public PessoaDTO buscarPorId(Integer id) throws RegraDeNegocioException {
         PessoaEntity pessoaEntity = pessoaRepository.buscarPorId(id);
+        DadosPessoaisDTO dadosPessoaisDTO = dadosPessoaisClient.getPorCpf(pessoaEntity.getCpf());
         PessoaDTO pessoaDTO = objectMapper.convertValue(pessoaEntity, PessoaDTO.class);
+        pessoaDTO.setDadosPessoaisDTO(dadosPessoaisDTO);
 
         return pessoaDTO;
     }
