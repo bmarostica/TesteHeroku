@@ -28,6 +28,7 @@ public class PessoaService {
         PessoaEntity pessoaCriada = pessoaRepository.create(pessoaEntity);
 
         PessoaDTO pessoaDTO = objectMapper.convertValue(pessoaCriada, PessoaDTO.class);
+
         dadosPessoaisClient.create(pessoaDTO.getDadosPessoaisDTO());
 
         //emailService.envioComTemplateAoCriar(pessoaDTO);
@@ -44,13 +45,9 @@ public class PessoaService {
     public PessoaDTO update(Integer id,
                             PessoaCreateDTO pessoaCreateDTO) throws Exception {
         PessoaEntity entity = objectMapper.convertValue(pessoaCreateDTO, PessoaEntity.class);
-        DadosPessoaisDTO dadosPessoaisAtualizado = dadosPessoaisClient.update(entity.getCpf(), entity.getDadosPessoaisDTO());
-
         PessoaEntity atualizado = pessoaRepository.update(id, entity);
 
         PessoaDTO pessoaDTO = objectMapper.convertValue(atualizado, PessoaDTO.class);
-
-        pessoaDTO.setDadosPessoaisDTO(dadosPessoaisAtualizado);
 
         //emailService.envioComTemplateAoAtualizar(pessoaDTO);
 
@@ -63,7 +60,6 @@ public class PessoaService {
         dadosPessoaisClient.delete(pessoaEntity.getCpf());
         pessoaRepository.delete(id);
 
-        //PessoaDTO pessoaDTO = objectMapper.convertValue(pessoaEntity, PessoaDTO.class)
         //emailService.envioComTemplateAoDeletar(pessoaDTO);
     }
 
@@ -76,11 +72,7 @@ public class PessoaService {
 
     public PessoaDTO buscarPorId(Integer id) throws RegraDeNegocioException {
         PessoaEntity pessoaEntity = pessoaRepository.buscarPorId(id);
-
-        DadosPessoaisDTO dadosPessoaisDTO = dadosPessoaisClient.getPorCpf(pessoaEntity.getCpf());
         PessoaDTO pessoaDTO = objectMapper.convertValue(pessoaEntity, PessoaDTO.class);
-
-        pessoaDTO.setDadosPessoaisDTO(dadosPessoaisDTO);
 
         return pessoaDTO;
     }
